@@ -3,7 +3,7 @@ use std::fmt::Debug;
 use petgraph::dot::{Config, Dot};
 use petgraph::Graph;
 
-use crate::visualizer::NodeType;
+use crate::visualizer::{Mermaid, NodeType};
 use crate::{ActionArgs, Behavior, State, Status, UpdateEvent};
 
 /// A "blackboard" is a simple key/value storage shared by all the nodes of the Tree.
@@ -111,6 +111,22 @@ impl<A: Clone + Debug, K: Debug> BT<A, K> {
         Self::dfs_recursive(&mut graph, behavior, root_id);
 
         let digraph = Dot::with_config(&graph, &[Config::EdgeNoLabel]);
+        (format!("{:?}", digraph), graph)
+    }
+
+    pub fn get_mermaid(&mut self) -> String {
+        self.get_mermaid_with_graph_instance().0
+    }
+
+    pub(crate) fn get_mermaid_with_graph_instance(&mut self) -> (String, Graph<NodeType<A>, u32>) {
+        let behavior = self.initial_behavior.to_owned();
+
+        let mut graph = Graph::<NodeType<A>, u32, petgraph::Directed>::new();
+        let root_id = graph.add_node(NodeType::Root);
+
+        Self::dfs_recursive(&mut graph, behavior, root_id);
+
+        let digraph = Mermaid::with_config(&graph, &[]);
         (format!("{:?}", digraph), graph)
     }
 

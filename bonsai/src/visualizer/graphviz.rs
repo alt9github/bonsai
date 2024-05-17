@@ -4,7 +4,7 @@ use petgraph::{graph::Graph, stable_graph::NodeIndex, Direction::Outgoing};
 use std::{collections::VecDeque, fmt::Debug};
 
 #[derive(Debug, Clone)]
-pub(crate) enum NodeType<A> {
+pub enum NodeType<A> {
     Root,
     Wait(f64),
     WaitForever,
@@ -22,7 +22,7 @@ pub(crate) enum NodeType<A> {
 }
 
 impl<A: Clone + Debug, K: Debug> BT<A, K> {
-    pub(crate) fn dfs_recursive(
+    pub fn dfs_recursive(
         graph: &mut Graph<NodeType<A>, u32, petgraph::Directed>,
         behavior: Behavior<A>,
         parent_node: NodeIndex,
@@ -133,7 +133,7 @@ impl<A: Clone + Debug, K: Debug> BT<A, K> {
 mod tests {
     use super::*;
     use crate::bt::BlackBoard;
-    use crate::visualizer::tests::TestActions::{Dec, Inc};
+    use crate::visualizer::graphviz::tests::TestActions::{Dec, Inc};
     use crate::Behavior::{
         Action, After, AlwaysSucceed, If, Invert, Select, Sequence, Wait, WaitForever, WhenAll, WhenAny, While,
     };
