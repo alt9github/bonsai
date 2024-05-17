@@ -242,41 +242,42 @@ impl<A: Clone> State<A> {
                     x => return x,
                 };
                 let cur = cursor;
-                let mut remaining_dt = upd.unwrap_or(0.0);
-                let mut remaining_e;
-                loop {
-                    match cur.tick(
-                        match upd {
-                            Some(_) => {
-                                remaining_e = UpdateEvent::from_dt(remaining_dt, e).unwrap();
-                                &remaining_e
-                            }
-                            _ => e,
-                        },
-                        blackboard,
-                        f,
-                    ) {
-                        (Failure, x) => return (Failure, x),
-                        (Running, _) => break,
-                        (Success, new_dt) => {
-                            remaining_dt = match upd {
-                                // Change update event with remaining delta time.
-                                Some(_) => new_dt,
-                                // Other events are 'consumed' and not passed to next.
-                                _ => return RUNNING,
-                            }
+
+                let remaining_dt = upd.unwrap_or(0.0);
+                let remaining_e;
+
+                match cur.tick(
+                    match upd {
+                        Some(_) => {
+                            remaining_e = UpdateEvent::from_dt(remaining_dt, e).unwrap();
+                            &remaining_e
                         }
-                    };
-                    *i += 1;
-                    // If end of repeated events,
-                    // start over from the first one.
-                    if *i >= rep.len() {
-                        *i = 0;
+                        _ => e,
+                    },
+                    blackboard,
+                    f,
+                ) {
+                    (Failure, x) => return (Failure, x),
+                    (Running, _) => return RUNNING,
+                    (Success, new_dt) => {
+                        match upd {
+                            // Change update event with remaining delta time.
+                            Some(_) => new_dt,
+                            // Other events are 'consumed' and not passed to next.
+                            _ => return RUNNING,
+                        }
                     }
-                    // Create a new cursor for next event.
-                    // Use the same pointer to avoid allocation.
-                    **cur = State::new(rep[*i].clone());
+                };
+                *i += 1;
+                // If end of repeated events,
+                // start over from the first one.
+                if *i >= rep.len() {
+                    *i = 0;
                 }
+                // Create a new cursor for next event.
+                // Use the same pointer to avoid allocation.
+                **cur = State::new(rep[*i].clone());
+
                 RUNNING
             }
             (_, &mut WhenAllState(ref mut cursors)) => {
