@@ -77,15 +77,15 @@
 //! fn main() {
 //!     use crate::Actions::{Inc, Dec};
 //!     use std::collections::HashMap;
-//!     use bonsai_bt::{Action, Sequence, Wait};
+//!     use bonsai_bt::{Action, Sequence, Period};
 //!
 //!     // create the behavior
 //!     let behavior = Sequence(vec![
-//!         Wait(1.0),
+//!         Period(1.0),
 //!         Action(Inc),
-//!         Wait(1.0),
+//!         Period(1.0),
 //!         Action(Inc),
-//!         Wait(0.5),
+//!         Period(0.5),
 //!         Action(Dec),
 //!     ]);
 //!
@@ -119,7 +119,7 @@
 //! ```
 
 pub use behavior::Behavior::{
-    self, Action, After, AlwaysSucceed, If, Invert, Select, Sequence, Wait, WaitForever, WhenAll, WhenAny, While,
+    self, Action, After, AlwaysSucceed, If, Invert, Select, Sequence, Period, Forever, WhenAll, WhenAny, While,
 };
 
 pub use bt::BT;

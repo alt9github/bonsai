@@ -6,8 +6,8 @@ use std::{collections::VecDeque, fmt::Debug};
 #[derive(Debug, Clone)]
 pub enum NodeType<A> {
     Root,
-    Wait(f64),
-    WaitForever,
+    Period(f64),
+    Forever,
     Action(A),
     Invert,
     AlwaysSucceed,
@@ -42,12 +42,12 @@ impl<A: Clone + Debug, K: Debug> BT<A, K> {
                 graph.add_edge(parent_node, node_id, 1);
                 Self::dfs_recursive(graph, *ev, node_id)
             }
-            Behavior::Wait(dt) => {
-                let node_id = graph.add_node(NodeType::Wait(dt));
+            Behavior::Period(dt) => {
+                let node_id = graph.add_node(NodeType::Period(dt));
                 graph.add_edge(parent_node, node_id, 1);
             }
-            Behavior::WaitForever => {
-                let node_id = graph.add_node(NodeType::WaitForever);
+            Behavior::Forever => {
+                let node_id = graph.add_node(NodeType::Forever);
                 graph.add_edge(parent_node, node_id, 1);
             }
             Behavior::If(condition, success, failure) => {
@@ -135,7 +135,7 @@ mod tests {
     use crate::bt::BlackBoard;
     use crate::visualizer::graphviz::tests::TestActions::{Dec, Inc};
     use crate::Behavior::{
-        Action, After, AlwaysSucceed, If, Invert, Select, Sequence, Wait, WaitForever, WhenAll, WhenAny, While,
+        Action, After, AlwaysSucceed, If, Invert, Select, Sequence, Period, Forever, WhenAll, WhenAny, While,
     };
     use crate::Status::{self, Success};
     use crate::{ActionArgs, Event, UpdateArgs};
@@ -211,9 +211,9 @@ mod tests {
     fn test_viz_sequence_action_wait() {
         let behavior = Sequence(vec![
             Action(Dec),
-            Wait(10.0),
+            Period(10.0),
             Action(Dec),
-            Select(vec![Wait(5.0), Sequence(vec![Action(Inc), Action(Dec)])]),
+            Select(vec![Period(5.0), Sequence(vec![Action(Inc), Action(Dec)])]),
         ]);
 
         let h: HashMap<String, i32> = HashMap::new();
@@ -228,7 +228,7 @@ mod tests {
 
     #[test]
     fn test_viz_while() {
-        let behavior = While(Box::new(Wait(50.0)), vec![Wait(0.5), Action(Inc), Wait(0.5)]);
+        let behavior = While(Box::new(Period(50.0)), vec![Period(0.5), Action(Inc), Period(0.5)]);
 
         let h: HashMap<String, i32> = HashMap::new();
         let mut bt = BT::new(behavior, h);
@@ -242,7 +242,7 @@ mod tests {
 
     #[test]
     fn test_viz_while_wait_forever() {
-        let behavior = While(Box::new(WaitForever), vec![Wait(0.5), Action(Inc), WaitForever]);
+        let behavior = While(Box::new(Forever), vec![Period(0.5), Action(Inc), Forever]);
 
         let h: HashMap<String, i32> = HashMap::new();
         let mut bt = BT::new(behavior, h);
@@ -258,11 +258,11 @@ mod tests {
     fn test_viz_while_select_sequence_wait() {
         let behavior = While(
             Box::new(Select(vec![
-                Wait(5.0),
+                Period(5.0),
                 Sequence(vec![Action(Inc), Action(Dec)]),
                 Action(Inc),
             ])),
-            vec![Wait(0.5), Action(Inc), Wait(0.5)],
+            vec![Period(0.5), Action(Inc), Period(0.5)],
         );
 
         let h: HashMap<String, i32> = HashMap::new();
@@ -344,8 +344,8 @@ mod tests {
     #[test]
     fn test_complex_while_select_sequence() {
         let _while = While(
-            Box::new(Select(vec![Wait(5.0), Sequence(vec![Action(Inc), Action(Dec)])])),
-            vec![Wait(0.5), Action(Inc), Action(Inc)],
+            Box::new(Select(vec![Period(5.0), Sequence(vec![Action(Inc), Action(Dec)])])),
+            vec![Period(0.5), Action(Inc), Action(Inc)],
         );
 
         let seq = Sequence(vec![Action(Inc), Action(Dec)]);
@@ -364,8 +364,8 @@ mod tests {
     #[test]
     fn test_while_invert() {
         let _while = While(
-            Box::new(Select(vec![Wait(5.0), Sequence(vec![Action(Inc), Action(Dec)])])),
-            vec![Wait(0.5), Action(Inc), Invert(Box::new(Wait(0.5)))],
+            Box::new(Select(vec![Period(5.0), Sequence(vec![Action(Inc), Action(Dec)])])),
+            vec![Period(0.5), Action(Inc), Invert(Box::new(Period(0.5)))],
         );
 
         // let _select = Select(vec![Wait(5.0), Sequence(vec![Action(Inc), Action(Dec)])]);
@@ -424,9 +424,9 @@ mod tests {
     fn test_viz_after_action_wait() {
         let behavior = After(vec![
             Action(Dec),
-            Wait(10.0),
+            Period(10.0),
             Action(Dec),
-            WhenAny(vec![Wait(5.0), After(vec![Action(Inc), Action(Dec)])]),
+            WhenAny(vec![Period(5.0), After(vec![Action(Inc), Action(Dec)])]),
         ]);
 
         let h: HashMap<String, i32> = HashMap::new();

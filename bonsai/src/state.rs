@@ -76,8 +76,8 @@ impl<A: Clone> State<A> {
             Behavior::Action(action) => State::ActionState(action),
             Behavior::Invert(ev) => State::InvertState(Box::new(State::new(*ev))),
             Behavior::AlwaysSucceed(ev) => State::AlwaysSucceedState(Box::new(State::new(*ev))),
-            Behavior::Wait(dt) => State::WaitState(dt, 0.0),
-            Behavior::WaitForever => State::WaitForeverState,
+            Behavior::Period(dt) => State::WaitState(dt, 0.0),
+            Behavior::Forever => State::WaitForeverState,
             Behavior::If(condition, success, failure) => {
                 let state = State::new(*condition);
                 State::IfState(success, failure, Status::Running, Box::new(state))

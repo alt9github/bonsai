@@ -7,9 +7,9 @@ pub enum Behavior<A> {
     /// Waits an amount of time before continuing
     ///
     /// f64: Time in seconds
-    Wait(f64),
+    Period(f64),
     /// Wait forever.
-    WaitForever,
+    Forever,
     /// A high level description of an action.
     ///
     /// An Action can either be "condition" which does not
@@ -121,7 +121,7 @@ pub enum Behavior<A> {
 
 #[cfg(test)]
 mod tests {
-    use crate::Behavior::{self, Action, Sequence, Wait, WaitForever, WhenAny, While};
+    use crate::Behavior::{self, Action, Sequence, Period, Forever, WhenAny, While};
 
     #[derive(serde::Deserialize, serde::Serialize, Clone, Debug)]
     pub(crate) enum EnemyAction {
@@ -141,7 +141,7 @@ mod tests {
     fn test_create_complex_behavior() {
         let circling = Action(EnemyAction::Circling);
         let circle_until_player_within_distance = Sequence(vec![
-            While(Box::new(Wait(5.0)), vec![circling.clone()]),
+            While(Box::new(Period(5.0)), vec![circling.clone()]),
             While(
                 Box::new(Action(EnemyAction::PlayerWithinDistance(50.0))),
                 vec![circling],
@@ -156,7 +156,7 @@ mod tests {
         ]);
         let attack_attempt = While(Box::new(give_up_or_attack), vec![Action(EnemyAction::FlyTowardPlayer)]);
         let enemy_behavior = While(
-            Box::new(WaitForever),
+            Box::new(Forever),
             vec![circle_until_player_within_distance, attack_attempt],
         );
 
@@ -168,10 +168,10 @@ mod tests {
     fn test_deserialize_behavior() {
         let bt_json = r#"
             {
-                "While": ["WaitForever", [{
+                "While": ["Forever", [{
                     "Sequence": [{
                         "While": [{
-                                "Wait": 5.0
+                                "Period": 5.0
                             },
                             [{
                                 "Action": "Circling"

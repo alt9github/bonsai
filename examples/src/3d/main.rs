@@ -1,4 +1,4 @@
-use bonsai_bt::Behavior::{If, Invert, Wait, WhenAny, While};
+use bonsai_bt::Behavior::{If, Invert, Period, WhenAny, While};
 use bonsai_bt::Status::{self};
 use bonsai_bt::{Action, RUNNING};
 use bonsai_bt::{Event, Status::Failure, Status::Success, UpdateArgs};
@@ -246,7 +246,7 @@ fn main() {
                 Box::new(Action(MoveBy(-0.005, -0.005))),
             ),
             Action(RotateBy(0.054)),
-            Wait(0.2),
+            Period(0.2),
             If(
                 // if ComplexCondition action `succeeds`, sequence will proceed
                 // if it returns `running`, sequence will restart from beginning
@@ -261,7 +261,7 @@ fn main() {
     );
 
     // only run animation bt for 20.0 secs
-    let behavior = WhenAny(vec![Wait(20.0), behavior]);
+    let behavior = WhenAny(vec![Period(20.0), behavior]);
 
     let blackboard: HashMap<String, serde_json::Value> = HashMap::new();
     let bt_serialized = serde_json::to_string_pretty(&behavior).unwrap();

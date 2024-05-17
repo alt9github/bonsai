@@ -1,6 +1,7 @@
+#![allow(dead_code, unused_imports, unused_variables)]
 use std::collections::HashMap;
 
-use bonsai_bt::{Action, Event, Sequence, Success, UpdateArgs, Wait, BT};
+use bonsai_bt::{Action, Event, Sequence, Success, UpdateArgs, Period, BT};
 
 use crate::blackboard_tests::TestActions::{Dec, Inc};
 
@@ -42,11 +43,11 @@ fn tick(mut acc: i32, dt: f64, bt: &mut BT<TestActions, HashMap<String, i32>>) -
 fn test_crate_bt() {
     let a: i32 = 0;
     let seq = Sequence(vec![
-        Wait(1.0),
+        Period(1.0),
         Action(Inc),
-        Wait(1.0),
+        Period(1.0),
         Action(Inc),
-        Wait(0.5),
+        Period(0.5),
         Action(Dec),
     ]);
 

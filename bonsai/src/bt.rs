@@ -74,7 +74,7 @@ impl<A: Clone + Debug, K: Debug> BT<A, K> {
     /// ```rust
     /// use std::collections::HashMap;
     /// use bonsai_bt::{
-    ///     Behavior::{Action, Sequence, Wait, WaitForever, While},
+    ///     Behavior::{Action, Sequence, Period, Forever, While},
     ///     BT
     /// };
     ///
@@ -88,7 +88,7 @@ impl<A: Clone + Debug, K: Debug> BT<A, K> {
     ///
     ///
     /// // create the behavior
-    /// let behavior = While(Box::new(WaitForever), vec![Wait(0.5), Action(Counter::Inc), WaitForever]);
+    /// let behavior = While(Box::new(Forever), vec![Period(0.5), Action(Counter::Inc), Forever]);
     ///
     /// let h: HashMap<String, i32> = HashMap::new();
     /// let mut bt = BT::new(behavior, h);

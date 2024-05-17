@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use bonsai_bt::{
-    Behavior::{Action, Sequence, Wait, WaitForever, WhenAny, While},
+    Behavior::{Action, Sequence, Period, Forever, WhenAny, While},
     BT,
 };
 
@@ -29,7 +29,7 @@ fn main() {
     // create ai behavior
     let circling = Action(AttackDrone::Circling);
     let circle_until_player_within_distance = Sequence(vec![
-        While(Box::new(Wait(5.0)), vec![circling.clone()]),
+        While(Box::new(Period(5.0)), vec![circling.clone()]),
         While(
             Box::new(Action(AttackDrone::PlayerWithinDistance(50.0))),
             vec![circling],
@@ -44,7 +44,7 @@ fn main() {
     ]);
     let attack_attempt = While(Box::new(give_up_or_attack), vec![Action(AttackDrone::FlyTowardPlayer)]);
     let behavior = While(
-        Box::new(WaitForever),
+        Box::new(Forever),
         vec![circle_until_player_within_distance, attack_attempt],
     );
 
