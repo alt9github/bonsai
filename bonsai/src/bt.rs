@@ -18,7 +18,11 @@ use crate::{ActionArgs, Behavior, State, Status, UpdateEvent};
 pub struct BlackBoard<K>(K);
 
 impl<K> BlackBoard<K> {
-    pub fn get_db(&mut self) -> &mut K {
+    pub fn get_db(&mut self) -> &K {
+        &self.0
+    }
+
+    pub fn get_db_mut(&mut self) -> &mut K {
         &mut self.0
     }
 }
@@ -132,7 +136,11 @@ impl<A: Clone + Debug, K: Debug> BT<A, K> {
 
     /// Retrieve a mutable reference to the blackboard for
     /// this Behavior Tree
-    pub fn get_blackboard(&mut self) -> &mut BlackBoard<K> {
+    pub fn get_blackboard(&self) -> &BlackBoard<K> {
+        &self.bb
+    }
+
+    pub fn get_blackboard_mut(&mut self) -> &mut BlackBoard<K> {
         &mut self.bb
     }
 

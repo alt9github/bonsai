@@ -88,7 +88,7 @@ fn game_tick(
     let e: Event = UpdateArgs { dt }.into();
 
     // get data from blackboard
-    let db = &*bt.get_blackboard().get_db();
+    let db = &*bt.get_blackboard_mut().get_db_mut();
     let inc: u64 = db.get("count").map_or(Some(0), |x| x.as_u64()).unwrap();
 
     let mut last_pos = mouse_pos(0.0, 0.0);
@@ -195,7 +195,7 @@ fn game_tick(
     );
 
     // update blackboard
-    let db = bt.get_blackboard().get_db();
+    let db = bt.get_blackboard_mut().get_db_mut();
 
     // update count
     let _count = db
