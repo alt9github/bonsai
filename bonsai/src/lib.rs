@@ -126,6 +126,7 @@ pub use bt::BT;
 pub use event::{Event, Timer, UpdateArgs, UpdateEvent};
 pub use state::{ActionArgs, State, RUNNING};
 pub use status::Status::{self, Failure, Running, Success};
+pub use visualizer::*;
 
 mod behavior;
 mod bt;
