@@ -18,7 +18,7 @@ use crate::{ActionArgs, Behavior, State, Status, UpdateEvent};
 pub struct BlackBoard<K>(K);
 
 impl<K> BlackBoard<K> {
-    pub fn get_db(&mut self) -> &K {
+    pub fn get_db(&self) -> &K {
         &self.0
     }
 
