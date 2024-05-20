@@ -20,8 +20,8 @@ path = "src/lib.rs"
 
 [dependencies]
 petgraph = { git = "https://github.com/alt9github/petgraph.git", features = ["serde-1"], rev = "fa14d15" }
-serde = { version = "1.0.202", features = ["derive"] }
-serde_json = "1.0.117"
+serde = { version = "1.0.196", features = ["derive"] }
+serde_json = { version = "1.0.113" }
 ahash = {  version = "0.8.11", features = ["serde"] }
 
 [[test]]
