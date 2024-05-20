@@ -109,6 +109,12 @@ impl Timer {
         self.now = new_now;
         duration.as_secs_f64()
     }
+
+    pub fn duration_since_last_action(&self) -> f64 {
+        let new_now: Instant = Instant::now();
+        let duration = new_now.duration_since(self.now);
+        duration.as_secs_f64()
+    }
 }
 
 #[cfg(test)]
