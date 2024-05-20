@@ -73,6 +73,17 @@ impl<A: Clone + Debug, K: Debug> BT<A, K> {
         self.state.tick(e, &mut self.bb, f)
     }
 
+    pub fn get_graph_instance(&self) -> Graph<NodeType<A>, u32>{
+        let behavior = self.initial_behavior.to_owned();
+
+        let mut graph = Graph::<NodeType<A>, u32, petgraph::Directed>::new();
+        let root_id = graph.add_node(NodeType::Root);
+
+        Self::dfs_recursive(&mut graph, behavior, root_id);
+
+        graph
+    }
+
     /// Compile the behavior tree into a [graphviz](https://graphviz.org/) compatible [DiGraph](https://docs.rs/petgraph/latest/petgraph/graph/type.DiGraph.html).
     ///
     /// ```rust
@@ -107,12 +118,7 @@ impl<A: Clone + Debug, K: Debug> BT<A, K> {
     }
 
     pub(crate) fn get_graphviz_with_graph_instance(&mut self) -> (String, Graph<NodeType<A>, u32>) {
-        let behavior = self.initial_behavior.to_owned();
-
-        let mut graph = Graph::<NodeType<A>, u32, petgraph::Directed>::new();
-        let root_id = graph.add_node(NodeType::Root);
-
-        Self::dfs_recursive(&mut graph, behavior, root_id);
+        let graph = self.get_graph_instance();
 
         let digraph = Dot::with_config(&graph, &[Config::EdgeNoLabel]);
         (format!("{:?}", digraph), graph)
@@ -123,12 +129,7 @@ impl<A: Clone + Debug, K: Debug> BT<A, K> {
     }
 
     pub(crate) fn get_mermaid_with_graph_instance(&mut self) -> (String, Graph<NodeType<A>, u32>) {
-        let behavior = self.initial_behavior.to_owned();
-
-        let mut graph = Graph::<NodeType<A>, u32, petgraph::Directed>::new();
-        let root_id = graph.add_node(NodeType::Root);
-
-        Self::dfs_recursive(&mut graph, behavior, root_id);
+        let graph = self.get_graph_instance();
 
         let digraph = Mermaid::with_config(&graph, &[]);
         (format!("{:?}", digraph), graph)
