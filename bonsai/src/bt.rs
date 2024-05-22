@@ -166,6 +166,10 @@ impl<A: Clone + Debug, K: Debug> BT<A, K> {
         let initial_behavior = self.initial_behavior.to_owned();
         self.state = State::new(initial_behavior)
     }
+
+    pub fn reset_with_new_behavior(&mut self, behavior: Behavior<A>) {
+        self.state = State::new(behavior)
+    }
 }
 
 #[cfg(test)]
