@@ -1,4 +1,5 @@
 #![allow(dead_code, unused_imports, unused_variables)]
+
 use crate::{Behavior, Select, Sequence, State, BT};
 use petgraph::{graph::Graph, stable_graph::NodeIndex, Direction::Outgoing};
 use std::{collections::VecDeque, fmt::Debug};
@@ -88,9 +89,14 @@ impl<A: Clone + Debug, K: Debug> BT<A, K> {
                 let left = *ev;
                 Self::dfs_recursive(graph, left, node_id);
 
-                // right
-                let right = Sequence(seq);
-                Self::dfs_recursive(graph, right, node_id)
+                if seq.len() > 1 {
+                    let right = Sequence(seq);
+                    Self::dfs_recursive(graph, right, node_id)
+                } else {
+                    for b in seq {
+                        Self::dfs_recursive(graph, b, node_id)
+                    }
+                }
             }
             Behavior::RepeatSequence(ev, seq) => {
                 let node_id = graph.add_node(NodeType::RepeatSequence);
