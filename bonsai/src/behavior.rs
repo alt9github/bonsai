@@ -32,6 +32,9 @@ pub enum Behavior<A> {
     Select(Vec<Behavior<A>>),
     /// `If(condition, success, failure)`
     If(Box<Behavior<A>>, Box<Behavior<A>>, Box<Behavior<A>>),
+    /// when condition is false, always Failure
+    /// `IfThen(condition, success)`
+    IfThen(Box<Behavior<A>>, Box<Behavior<A>>),
     /// Runs behaviors one by one until all succeeded.
     ///
     /// The sequence fails if a behavior fails.
