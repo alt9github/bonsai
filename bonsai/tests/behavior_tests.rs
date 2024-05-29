@@ -1,6 +1,7 @@
 #![allow(dead_code, unused_imports, unused_variables)]
+
 use crate::behavior_tests::TestActions::{Dec, Inc, LessThan, LessThanRunningSuccess};
-use bonsai_bt::Behavior::RepeatSequence;
+use bonsai_bt::Behavior::{IfThen, RepeatSequence};
 use bonsai_bt::{
     Action, ActionArgs,
     Behavior::{After, AlwaysSucceed, If, Invert, Select},
@@ -240,6 +241,40 @@ fn test_if_less_than() {
     let (a, s, _) = tick(a, 0.1, &mut state);
     assert_eq!(a, -1);
     assert_eq!(s, Success);
+}
+
+#[test]
+fn test_if_then_less_than_true() {
+    let a: i32 = 1;
+    let _if_then = IfThen(
+        Box::new(Action(LessThan(4))),
+        Box::new(Action(Inc)),
+    );
+
+    let mut state = State::new(_if_then);
+
+    let (a, s, _) = tick(a, 0.1, &mut state);
+    assert_eq!(a, 2);
+    let (a, s, _) = tick(a, 0.1, &mut state);
+    assert_eq!(a, 3);
+    let (a, s, _) = tick(a, 0.1, &mut state);
+    assert_eq!(a, 4);
+}
+
+#[test]
+fn test_if_then_less_than_false() {
+    let a: i32 = 3;
+    let _if_then = IfThen(
+        Box::new(Action(LessThan(1))),
+        Box::new(Action(Inc)),
+    );
+
+    let _select = Select(vec![_if_then, Sequence(vec![Action(Dec)])]);
+
+    let mut state = State::new(_select);
+
+    let (a, s, _) = tick(a, 0.1, &mut state);
+    assert_eq!(a, 2);
 }
 
 // #[test]

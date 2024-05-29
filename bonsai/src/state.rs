@@ -47,6 +47,7 @@ pub enum State<A> {
     /// If status is `Success`, then it evaluates the success behavior.
     /// If status is `Failure`, then it evaluates the failure behavior.
     IfState(Box<Behavior<A>>, Box<Behavior<A>>, Status, Box<State<A>>),
+    IfThenState(Box<Behavior<A>>, Status, Box<State<A>>),
     /// Keeps track of a `Select` behavior.
     SelectState(Vec<Behavior<A>>, usize, Box<State<A>>),
     /// Keeps track of an `Sequence` behavior.
@@ -81,6 +82,10 @@ impl<A: Clone> State<A> {
             Behavior::If(condition, success, failure) => {
                 let state = State::new(*condition);
                 State::IfState(success, failure, Status::Running, Box::new(state))
+            }
+            Behavior::IfThen(condition, success) => {
+                let state = State::new(*condition);
+                State::IfThenState(success, Status::Running, Box::new(state))
             }
             Behavior::Select(sel) => {
                 let state = State::new(sel[0].clone());
@@ -121,10 +126,10 @@ impl<A: Clone> State<A> {
     /// it actually took to complete the traversal and propagate the
     /// results back up to the root node
     pub fn tick<E, F, B>(&mut self, e: &E, blackboard: &mut B, f: &mut F) -> (Status, f64)
-    where
-        E: UpdateEvent,
-        F: FnMut(ActionArgs<E, A>, &mut B) -> (Status, f64),
-        A: Debug,
+        where
+            E: UpdateEvent,
+            F: FnMut(ActionArgs<E, A>, &mut B) -> (Status, f64),
+            A: Debug,
     {
         let upd = e.update(|args| Some(args.dt)).unwrap_or(None);
 
@@ -190,6 +195,47 @@ impl<A: Clone> State<A> {
                                 Failure
                             }
                         },
+                        _ => {
+                            return state.tick(
+                                match upd {
+                                    Some(_) => {
+                                        remaining_e = UpdateEvent::from_dt(remaining_dt, e).unwrap();
+                                        &remaining_e
+                                    }
+                                    _ => e,
+                                },
+                                blackboard,
+                                f,
+                            );
+                        }
+                    }
+                }
+            }
+            (_, &mut IfThenState(ref success, ref mut status, ref mut state)) => {
+                // println!("In IfState: {:?}", success);
+                let mut remaining_dt = upd.unwrap_or(0.0);
+                let remaining_e;
+                // Run in a loop to evaluate success or failure with
+                // remaining delta time after condition.
+                loop {
+                    *status = match *status {
+                        Running => match state.tick(e, blackboard, f) {
+                            (Running, dt) => {
+                                return (Running, dt);
+                            }
+                            (Success, dt) => {
+                                **state = State::new((**success).clone());
+                                remaining_dt = dt;
+                                Success
+                            }
+                            (Failure, dt) => {
+                                remaining_dt = dt;
+                                Failure
+                            }
+                        },
+                        Failure => {
+                            return (Failure, remaining_dt);
+                        }
                         _ => {
                             return state.tick(
                                 match upd {

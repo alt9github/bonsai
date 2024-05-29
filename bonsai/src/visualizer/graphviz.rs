@@ -67,6 +67,18 @@ impl<A: Clone + Debug, K: Debug> BT<A, K> {
                 let right = *failure;
                 Self::dfs_recursive(graph, right, node_id);
             }
+            Behavior::IfThen(condition, success) => {
+                let node_id = graph.add_node(NodeType::If);
+                graph.add_edge(parent_node, node_id, 1);
+
+                // left (if condition)
+                let left = *condition;
+                Self::dfs_recursive(graph, left, node_id);
+
+                // right (execute if condition is True)
+                let right = *success;
+                Self::dfs_recursive(graph, right, node_id);
+            }
             Behavior::Select(sel) => {
                 let node_id = graph.add_node(NodeType::Select);
                 graph.add_edge(parent_node, node_id, 1);
