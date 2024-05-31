@@ -14,6 +14,7 @@ pub enum NodeType<A> {
     AlwaysSucceed,
     Select,
     If,
+    IfThen,
     Sequence,
     RepeatSequence,
     While,
@@ -68,7 +69,7 @@ impl<A: Clone + Debug, K: Debug> BT<A, K> {
                 Self::dfs_recursive(graph, right, node_id);
             }
             Behavior::IfThen(condition, success) => {
-                let node_id = graph.add_node(NodeType::If);
+                let node_id = graph.add_node(NodeType::IfThen);
                 graph.add_edge(parent_node, node_id, 1);
 
                 // left (if condition)
