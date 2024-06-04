@@ -7,6 +7,7 @@ use std::{collections::VecDeque, fmt::Debug};
 #[derive(Debug, Clone)]
 pub enum NodeType<A> {
     Root,
+    Sub,
     Period(f64),
     Forever,
     Action(A),

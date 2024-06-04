@@ -65,19 +65,19 @@ impl<A: Clone + Debug, K: Debug> BT<A, K> {
     /// results back up to the root node
     #[inline]
     pub fn tick<E, F>(&mut self, e: &E, f: &mut F) -> (Status, f64)
-    where
-        E: UpdateEvent,
-        F: FnMut(ActionArgs<E, A>, &mut BlackBoard<K>) -> (Status, f64),
-        A: Debug,
+        where
+            E: UpdateEvent,
+            F: FnMut(ActionArgs<E, A>, &mut BlackBoard<K>) -> (Status, f64),
+            A: Debug,
     {
         self.state.tick(e, &mut self.bb, f)
     }
 
-    pub fn get_graph_instance(&self) -> Graph<NodeType<A>, u32>{
+    pub fn get_graph_instance(&self, root_node_type: NodeType<A>) -> Graph<NodeType<A>, u32> {
         let behavior = self.initial_behavior.to_owned();
 
         let mut graph = Graph::<NodeType<A>, u32, petgraph::Directed>::new();
-        let root_id = graph.add_node(NodeType::Root);
+        let root_id = graph.add_node(root_node_type);
 
         Self::dfs_recursive(&mut graph, behavior, root_id);
 
@@ -118,7 +118,7 @@ impl<A: Clone + Debug, K: Debug> BT<A, K> {
     }
 
     pub(crate) fn get_graphviz_with_graph_instance(&mut self) -> (String, Graph<NodeType<A>, u32>) {
-        let graph = self.get_graph_instance();
+        let graph = self.get_graph_instance(NodeType::Root);
 
         let digraph = Dot::with_config(&graph, &[Config::EdgeNoLabel]);
         (format!("{:?}", digraph), graph)
@@ -127,9 +127,19 @@ impl<A: Clone + Debug, K: Debug> BT<A, K> {
     pub fn get_mermaid(&mut self) -> String {
         self.get_mermaid_with_graph_instance().0
     }
+    pub fn get_sub_mermaid(&mut self) -> String {
+        self.get_sub_mermaid_with_graph_instance().0
+    }
 
     pub(crate) fn get_mermaid_with_graph_instance(&mut self) -> (String, Graph<NodeType<A>, u32>) {
-        let graph = self.get_graph_instance();
+        let graph = self.get_graph_instance(NodeType::Root);
+
+        let digraph = Mermaid::with_config(&graph, &[]);
+        (format!("{:?}", digraph), graph)
+    }
+
+    pub(crate) fn get_sub_mermaid_with_graph_instance(&mut self) -> (String, Graph<NodeType<A>, u32>) {
+        let graph = self.get_graph_instance(NodeType::Sub);
 
         let digraph = Mermaid::with_config(&graph, &[]);
         (format!("{:?}", digraph), graph)
