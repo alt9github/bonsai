@@ -35,7 +35,7 @@ pub struct BT<A, K> {
     pub state: State<A>,
     /// keep the initial state
     initial_behavior: Behavior<A>,
-    pub current_behavior: Behavior<A>,
+    current_behavior: Behavior<A>,
     /// blackboard
     bb: BlackBoard<K>,
 }
@@ -180,7 +180,12 @@ impl<A: Clone + Debug, K: Debug> BT<A, K> {
     }
 
     pub fn reset_with_new_behavior(&mut self, behavior: Behavior<A>) {
+        self.current_behavior = behavior.clone();
         self.state = State::new(behavior)
+    }
+
+    pub fn current_behavior(&self) -> Behavior<A> {
+        self.current_behavior.clone()
     }
 }
 
