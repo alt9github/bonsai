@@ -35,6 +35,7 @@ pub struct BT<A, K> {
     pub state: State<A>,
     /// keep the initial state
     initial_behavior: Behavior<A>,
+    pub current_behavior: Behavior<A>,
     /// blackboard
     bb: BlackBoard<K>,
 }
@@ -46,7 +47,8 @@ impl<A: Clone + Debug, K: Debug> BT<A, K> {
 
         Self {
             state: bt,
-            initial_behavior: backup_behavior,
+            initial_behavior: backup_behavior.clone(),
+            current_behavior: backup_behavior.clone(),
             bb: BlackBoard(blackboard),
         }
     }
@@ -65,10 +67,10 @@ impl<A: Clone + Debug, K: Debug> BT<A, K> {
     /// results back up to the root node
     #[inline]
     pub fn tick<E, F>(&mut self, e: &E, f: &mut F) -> (Status, f64)
-        where
-            E: UpdateEvent,
-            F: FnMut(ActionArgs<E, A>, &mut BlackBoard<K>) -> (Status, f64),
-            A: Debug,
+    where
+        E: UpdateEvent,
+        F: FnMut(ActionArgs<E, A>, &mut BlackBoard<K>) -> (Status, f64),
+        A: Debug,
     {
         self.state.tick(e, &mut self.bb, f)
     }
